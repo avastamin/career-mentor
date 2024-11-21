@@ -67,13 +67,22 @@ serve(async (req) => {
       throw new Error('Invalid user')
     }
 
+    console.log("Before get or create stripe customer", user);
     // Get or create Stripe customer
-    const { data: profile } = await supabaseClient
-      .from('user_profiles')
-      .select('stripe_customer_id')
-      .eq('id', user.id)
-      .single()
+      console.log('User ID:', user.id);
+      const { data:profile, error } = await supabaseClient
+        .from('user_profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
 
+      if (!profile) {
+        console.error('No user profile found with the specified ID');
+        console.error('error', error);
+      }
+
+
+      console.log("profile", profile);
     let customerId = profile?.stripe_customer_id
 
     if (!customerId) {
@@ -84,15 +93,24 @@ serve(async (req) => {
           supabase_user_id: user.id
         }
       })
+      console.log("stripe customer", customer);
       customerId = customer.id
 
       // Save customer ID
-      await supabaseClient
+      const { data, error } = await supabaseClient
         .from('user_profiles')
         .update({ stripe_customer_id: customerId })
-        .eq('id', user.id)
+        .eq('id', user.id);
+
+      if (error) {
+        console.error('Error updating stripe_customer_id:', error.message);
+      } else {
+        console.log('Update successful:', data);
+      }
+
     }
 
+    console.log("customerId -> stripe_customer_id", customerId);
     // Create checkout session
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
