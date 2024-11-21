@@ -1,10 +1,13 @@
 // Follow this setup guide to integrate the Deno language server with your editor:
 // https://deno.land/manual/getting_started/setup_your_environment
 // This enables autocomplete, go to definition, etc.
+
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
 import { corsHeaders } from "../_shared/cors.ts";
 
 console.log(`Function "browser-with-cors" up and running!`);
+// default secrets
+console.log('logging STRIPE_SECRET_KEY:', Deno.env.get('VITE_STRIPE_PUBLIC_KEY'))
 
 serve(async (req) => {
   // This is needed if you're planning to invoke your function from a browser.

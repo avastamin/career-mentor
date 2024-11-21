@@ -57,6 +57,8 @@ async function fetchWithRetry(
 }
 
 // Initialize Supabase client with improved configuration
+
+
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
@@ -69,6 +71,7 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   global: {
     headers: {
       "Cache-Control": "no-cache",
+      "Content-Type": "application/json",
     },
   },
   db: {

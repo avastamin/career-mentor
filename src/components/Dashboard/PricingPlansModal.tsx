@@ -18,6 +18,7 @@ import {
 import { AnimatedButton } from "../AnimatedButton";
 import { useAuth } from "../../contexts/AuthContext";
 import { createCheckoutSession } from "../../lib/stripe";
+import { supabase } from "../../lib/supabase";
 
 interface PricingPlansModalProps {
   isOpen: boolean;
@@ -33,10 +34,9 @@ export const PricingPlansModal: React.FC<PricingPlansModalProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    console.log("userProfile", userProfile);
+  /*   useEffect(() => {
     const SUPABASE_FUNCTION_URL =
-      "https://exsjlgkzfbjykpmzbqws.supabase.co/functions/v1";
+      "https://exsjlgkzfbjykpmzbqws.supabase.co/functions/v1/create-checkout";
 
     console.log(
       "import.meta.env.VITE_SUPABASE_ANON_KEY",
@@ -46,11 +46,16 @@ export const PricingPlansModal: React.FC<PricingPlansModalProps> = ({
       try {
         const response = await fetch(SUPABASE_FUNCTION_URL, {
           method: "POST",
+          body: JSON.stringify({
+            priceId: "price_12345",
+            successUrl: "https://example.com/success",
+            cancelUrl: "https://example.com/cancel",
+          }),
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24ifQ.625_WdcF3KHqz5amU0x2X5WWHP-OEs_4qj0ssLNHzTs`, // Use the anon key
+            apikey: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4c2psZ2t6ZmJqeWtwbXpicXdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE1MzA5MTgsImV4cCI6MjA0NzEwNjkxOH0.KuQn2oaJqxT9cY9co9yxv9Zcy5_m1BT0ULIlKWjmNw8`,
+            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsImtpZCI6IjNiSE1hUEpKSW5wSHVMZTciLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2V4c2psZ2t6ZmJqeWtwbXpicXdzLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIwZTJlNWRkMC01YTM4LTQxYTAtYWUyYS0wYmFjZjA1NzE0NjAiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzMyMTE1ODI5LCJpYXQiOjE3MzIxMTIyMjksImVtYWlsIjoicnVodWxAZGVtby5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoicnVodWxAZGVtby5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZ1bGxfbmFtZSI6IlJ1aHVsIiwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiIwZTJlNWRkMC01YTM4LTQxYTAtYWUyYS0wYmFjZjA1NzE0NjAifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTczMjA5OTY2OH1dLCJzZXNzaW9uX2lkIjoiYWZkMzlkMzMtZDE4MC00N2FiLWE2ZTMtZTkxNWYxOWEwZmVlIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.89NPVxPhlNJcy0HyPKmfvNnx0J7sAR-jaasJYTFP9n0`, // Use the anon key
           },
-          body: JSON.stringify({ key: "value" }),
         });
 
         const data = await response.json();
@@ -61,7 +66,8 @@ export const PricingPlansModal: React.FC<PricingPlansModalProps> = ({
     }
 
     callEdgeFunction();
-  }, [userProfile]);
+  }, []);
+ */
   // Lock body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
@@ -150,7 +156,6 @@ export const PricingPlansModal: React.FC<PricingPlansModalProps> = ({
         return;
       }
 
-      debugger;
       const { error: checkoutError } = await createCheckoutSession(
         plan.priceId
       );

@@ -1,22 +1,39 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 import Stripe from 'https://esm.sh/stripe@12.4.0'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, Cache-Control',
 }
+
+console.log(`Function "create-checkout" up and running! - By ruhul`);
+
 
 serve(async (req) => {
   // Handle CORS
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+  if (req.method === "OPTIONS") {
+    // Handle preflight request
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Get request data
-    const { priceId, successUrl, cancelUrl } = await req.json()
+    if (req.method !== 'POST') {
+    throw new Error('Invalid HTTP method. Only POST is allowed.');
+    }
 
+    const { priceId, successUrl, cancelUrl } = await req.json();
+
+  if (!priceId || !successUrl || !cancelUrl) {
+    throw new Error('Missing required fields: priceId, successUrl, or cancelUrl');
+    }
+
+    console.log("priceId", priceId);
+    console.log("successUrl", successUrl);
+    console.log("cancelUrl", cancelUrl);
+    
     // Validate inputs
     if (!priceId?.startsWith('price_')) {
       throw new Error('Invalid price ID')
@@ -86,6 +103,9 @@ serve(async (req) => {
       automatic_tax: { enabled: true },
       allow_promotion_codes: true,
       billing_address_collection: 'required',
+      customer_update: {
+        address: 'auto', // Automatically save the billing address to the customer profile
+      },
       subscription_data: {
         metadata: {
           supabase_user_id: user.id
@@ -117,4 +137,4 @@ serve(async (req) => {
       }
     )
   }
-})
+}) 

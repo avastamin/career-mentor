@@ -1,5 +1,5 @@
 import { loadStripe } from "@stripe/stripe-js";
-import { supabase } from "./supabase";
+import { supabase } from './supabase'
 
 const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
 
@@ -23,31 +23,38 @@ export const getStripe = async () => {
 };
 
 export const createCheckoutSession = async (priceId: string) => {
-  debugger;
   try {
     // Get current user
-    const {
+     const {
       data: { user },
       error: userError,
     } = await supabase.auth.getUser();
     if (userError) throw userError;
-    if (!user) throw new Error("Please sign in to continue");
-
-    debugger;
+    if (!user) throw new Error("Please sign in to continue"); 
+  
+ 
     // Call Supabase Edge Function with proper error handling
-    const { data, error } = await supabase.functions.invoke("create-checkout", {
+    const { data, error } = await supabase.functions.invoke('create-checkout', {
+      method: 'POST',
       body: {
-        priceId,
+        priceId: priceId,
         successUrl: `${window.location.origin}/dashboard/overview?session_id={CHECKOUT_SESSION_ID}`,
-        cancelUrl: `${window.location.origin}/pricing?canceled=true`,
+        cancelUrl: `${window.location.origin}/pricing?canceled=true`
+      },
+    });
+    console.log(data, error);
+    /*     const { data, error } = await supabase.functions.invoke("create-checkout", {
+      method: "POST",
+      body: {
+        priceId: priceId,
+        successUrl: `${window.location.origin}/dashboard/overview?session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl: `${window.location.origin}/pricing?canceled=true`
       },
       headers: {
         "Content-Type": "application/json",
-        "Cache-Control": "no-cache",
-  
       },
     });
-
+ */
 
     if (error) {
       console.error("Edge function error:", error);
